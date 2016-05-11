@@ -1,0 +1,6 @@
+//test file for jack compiler by dhruv mohindru
+class Main {
+	field Square square;
+	static int direction, out, in;
+	field boolean over, notover;
+}

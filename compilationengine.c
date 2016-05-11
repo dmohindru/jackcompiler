@@ -108,38 +108,163 @@ void compileClassVarDec()
 	else
 	{
 		advance();
-		if(tokenType() != KEYWORD || keyWord() != STATIC || keyWord() != FIELD)
+		if(tokenType() == KEYWORD)
 		{
-			printf("Expected a key word 'static' or 'field' at line no %d\n", currentToken->line);
-			return;
-		}
-		fprintf(vmFile, "%s<classVarDec>\n", indentString);
-		strcat(indentString, "  ");
-		if(keyWord() == STATIC)
-		{
-			fprintf(vmFile, "%s<keyword> static </keyword>\n", indentString); 
+			switch(keyWord())
+			{
+				case STATIC:
+					fprintf(vmFile, "%s<classVarDec>\n", indentString);
+					strcat(indentString, "  ");
+					fprintf(vmFile, "%s<keyword> static </keyword>\n", indentString);
+					break;
+				case FIELD:
+					fprintf(vmFile, "%s<classVarDec>\n", indentString);
+					strcat(indentString, "  ");
+					fprintf(vmFile, "%s<keyword> field </keyword>\n", indentString); 
+					break;
+				case DEFAULT:
+					return;
+			}
 		}
 		else
 		{
-			fprintf(vmFile, "%s<keyword> field </keyword>\n", indentString); 
+			return;
 		}
 	}
 	//check for type token code block
 	if(!hasMoreTokens()) 
 	{
 		printf("token type not found at line %d\n", currentToken->line);
-		return;
+		freeToken();
+		fclose(vmFile);
+		exit(1);
 	}
 	else
 	{
 		advance();
-		if(tokenType() != KEYWORD || tokenType() != IDENTIFIER)
+		if(tokenType() == KEYWORD))
 		{
-			keyWord() != INT || keyWord() != CHAR || keyWord() != BOOLEAN
-			printf("Expected a type of int, char, boolean or indetifier at line %d", currentToken->line);
-			return;
+			switch(keyWord())
+			{
+				case INT:
+					fprintf(vmFile, "%s<keyword> int </keyword>\n", indentString);
+					break;
+				case CHAR:
+					fprintf(vmFile, "%s<keyword> char </keyword>\n", indentString);
+					break;
+				case BOOLEAN:
+					fprintf(vmFile, "%s<keyword> boolean </keyword>\n", indentString);
+					break;
+				case DEFAULT:
+					printf("Variable declareation unknown type at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+			}
+		}
+		else if(tokenType() == IDENTIFIER)
+		{
+			fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
+		}
+		else
+		{
+			printf("Variable declareation unknown type at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
 		}
 	}
+	//variable name if block
+	if(!hasMoreTokens()) 
+	{
+		printf("token variable not found at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance();
+		if(tokenType() == IDENTIFIER)
+		{
+			fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
+		}
+		else
+		{
+			printf("token variable not found at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+	}
+	//(',' varName)* ';' block
+	if(!hasMoreTokens())
+	{
+		printf("terminating symbol ';' or ',' not found at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance();
+		if(tokenType() == SYMBOL)
+		{
+			while(true)
+			{
+				if(symbol() == ';')
+				{
+					fprintf(vmFile, "%s<symbol> ; </symbol>\n", indentString);
+					strncpy(indentString, indentString, strlen(indentString)-2);
+					fprintf(vmFile, "%s</classVarDec>\n", indentString);
+					break;
+				}
+				else if(symbol() == ',')
+				{
+					fprintf(vmFile, "%s<symbol> , </symbol>\n", indentString);
+					if(!hasMoreTokens())
+					{
+						printf("token variable not found at line %d\n", currentToken->line);
+						freeToken();
+						fclose(vmFile);
+						exit(1);
+					}
+					advance(); //get the next token
+					if(tokenType() == IDENTIFIER)
+					{
+						fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
+					}
+					else
+					{
+						printf("token variable not found at line %d\n", currentToken->line);
+						freeToken();
+						fclose(vmFile);
+						exit(1);
+					}	
+				}
+				if(!hasMoreTokens()) // check for more token of type ',' or ';'
+				{
+					printf("terminating symbol ';' or ',' not found at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				else
+				{
+					advance();
+				}
+			}
+		}
+		else
+		{
+			printf("terminating symbol ';' or ',' not found at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+	}
+	//at the end recussively call compileClassVarDec
+	compileClassVarDec();
 }
 void compileSubroutine()
 {
