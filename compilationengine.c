@@ -511,13 +511,6 @@ void compileParameterList()
 					exit(1);
 			}
 		}
-		else if(tokenType() == IDENTIFIER)
-		{
-			
-			fprintf(vmFile, "%s<parameterList>\n", indentString);
-			strcat(indentString, "  ");//increase the indent
-			fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
-		}
 		else if(tokenType() == SYMBOL && symbol() == ')') //we just found an empty parameter list
 		{
 			//indentString[strlen(indentString)-2] = '\0'; //decrease the indent
@@ -559,6 +552,98 @@ void compileParameterList()
 	//loop through multiple parameter list
 	while(1)
 	{
+		if(!hasMoreTokens()) // check for more token of type ','
+		{
+			printf("Parameter decleration error at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		else
+		{
+			advance();
+		}
+		//check for symbol ','
+		if(tokenType() == SYMBOL)
+		{
+			switch(symbol())
+			{
+				case ')':
+					indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+					fprintf(vmFile, "%s</parameterList>\n", indentString);
+					return;
+					//break;
+				case ',':
+					fprintf(vmFile, "%s<symbol> , </symbol>\n", indentString);
+					break;
+				default:
+					printf("Parameter decleration error at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+			}
+		}
+		if(!hasMoreTokens()) // check for more token of type keyword int, char, boolean
+		{
+			printf("Parameter decleration error at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		else
+		{
+			advance();
+		}
+		if(tokenType() == KEYWORD)
+		{
+			switch(keyWord())
+			{
+				case INT:
+					fprintf(vmFile, "%s<keyword> int </keyword>\n", indentString);
+					break;
+				case CHAR:
+					fprintf(vmFile, "%s<keyword> char </keyword>\n", indentString);
+					break;
+				case BOOLEAN:
+					fprintf(vmFile, "%s<keyword> boolean </keyword>\n", indentString);
+					break;
+				default: //not a valid keyword found in 'type' decleration
+					printf("Parameter list declareation unknown 'type' at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+			}
+		}
+		else
+		{
+			printf("Parameter list declareation unknown 'type' at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		if(!hasMoreTokens()) // check for more token for identifier
+		{
+			printf("Parameter decleration error at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		else
+		{
+			advance();
+		}
+		
+		if(tokenType() == IDENTIFIER)
+		{
+			fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
+		}
+		else //not a valid variable name token
+		{
+			printf("token variable not found at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
 	}
 	
 }

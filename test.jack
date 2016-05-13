@@ -6,10 +6,10 @@ class Main {
 	field Square square;
 	static int direction, out, in;
 	field boolean over, notover;
-	constructor void Main()
+	constructor void Main(int a, boolean b, char j)
 	{
 	}
-	function void Main()
+	function void Main(boolean b)
 	{
 	}
 	method void Main()
