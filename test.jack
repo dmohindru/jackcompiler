@@ -3,9 +3,9 @@
 //testing
 //more comments online
 class Main {
-	//field Square square;
-	//static int direction, out, in;
-	//field boolean over, notover;
+	field Square square;
+	static int direction, out, in;
+	field boolean over, notover;
 	constructor void Main()
 	{
 	}

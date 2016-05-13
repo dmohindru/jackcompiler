@@ -281,42 +281,36 @@ void compileClassVarDec()
 void compileSubroutine()
 {
 	//check for constructor or function or method keyword code block
-	//if(!hasMoreTokens()) //if no more tokens return to compileClass method
-	//{			
-	//	return;
-	//}
-	//else
-	//{
-	//	advance(); //read next token
-		if(tokenType() == KEYWORD)
+	//since token has been ready by previous function like compileVarDec or 
+	//compileSubroutine which is called recussively
+	if(tokenType() == KEYWORD)
+	{
+		switch(keyWord())
 		{
-			switch(keyWord())
-			{
-				case CONSTRUCTOR:
-					fprintf(vmFile, "%s<subroutineDec>\n", indentString);
-					strcat(indentString, "  ");//increase the indent
-					fprintf(vmFile, "%s<keyword> constructor </keyword>\n", indentString);
-					break;
-				case FUNCTION:
-					fprintf(vmFile, "%s<subroutineDec>\n", indentString);
-					strcat(indentString, "  ");//increase the indent
-					fprintf(vmFile, "%s<keyword> function </keyword>\n", indentString); 
-					break;
-				case METHOD:
-					fprintf(vmFile, "%s<subroutineDec>\n", indentString);
-					strcat(indentString, "  ");//increase the indent
-					fprintf(vmFile, "%s<keyword> method </keyword>\n", indentString);
-					break;
-				default:   //static or field keyword not found return to compileClass Method
-					printf("Not found any thing\n");
-					return;
-			}
+			case CONSTRUCTOR:
+				fprintf(vmFile, "%s<subroutineDec>\n", indentString);
+				strcat(indentString, "  ");//increase the indent
+				fprintf(vmFile, "%s<keyword> constructor </keyword>\n", indentString);
+				break;
+			case FUNCTION:
+				fprintf(vmFile, "%s<subroutineDec>\n", indentString);
+				strcat(indentString, "  ");//increase the indent
+				fprintf(vmFile, "%s<keyword> function </keyword>\n", indentString); 
+				break;
+			case METHOD:
+				fprintf(vmFile, "%s<subroutineDec>\n", indentString);
+				strcat(indentString, "  ");//increase the indent
+				fprintf(vmFile, "%s<keyword> method </keyword>\n", indentString);
+				break;
+			default:   //static or field keyword not found return to compileClass Method
+				printf("Not found any thing\n");
+				return;
 		}
-		else //if the token type in not keyword this may be possible some other statement
-		{	  //return to compileClass method	
-			return;
-		}
-	//}
+	}
+	else //if the token type in not keyword this may be possible some other statement
+	{	  //return to compileClass method	
+		return;
+	}
 	//we have come so far so it must be a subroutine Decleration
 	//check for syntatic correctness and exit program if some errors are found
 	//check for 'type' token code block
@@ -464,6 +458,17 @@ void compileSubroutine()
 	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 	fprintf(vmFile, "%s</subroutineDec>\n", indentString);
 	//recussively call compileSubroutine
+	if(!hasMoreTokens())
+	{
+		printf("expected symbol '}' for class decleration\n");
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance(); //need attention here
+	}
 	compileSubroutine();	
 	
 }
