@@ -826,6 +826,47 @@ void compileVarDec()
 }
 void compileStatements()
 {
+	if(tokenType() == KEYWORD) //since next token has already been ready by compileVarDec
+	{							//just need to check here for statement keywords
+		switch(keyWord())
+		{
+			case LET:
+				compileLet();
+				break;
+			case IF:
+				compileIf();
+				break;
+			case WHILE:
+				compileWhile();
+				break;
+			case DO:
+				compileDo();
+				break;
+			case RETURN:
+				compileReturn();
+				break;
+			default:
+				return; //did not found any valid statement return as it be be some other statement
+		}
+	}
+	else
+	{
+		return; //did not found any valid statement return as it be be some other statement
+	}
+	//read the next token
+	if(!hasMoreTokens())
+	{
+		printf("expected symbol '}' for subroutine decleration\n");
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance(); //advance for next compileSubroutine() function
+	}
+	//call compileStatement recussively
+	compileStatements();
 }
 void compileDo()
 {
