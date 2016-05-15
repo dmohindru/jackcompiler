@@ -873,7 +873,104 @@ void compileDo()
 }
 void compileLet()
 {
+	//straight away write <letStatement> tag as it has been
+	//ready by compileStatments function
+	fprintf(vmFile, "%s<letStatement>\n", indentString);
+	strcat(indentString, "  "); //increase the indent
+	fprintf(vmFile, "%s<keyword> let </keyword>\n", indentString);
+	//read next token which should be identifier
+	if(!hasMoreTokens())
+	{
+		printf("expected an identifier at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance(); 
+		if(tokenType() != IDENTIFIER)
+		{
+			printf("expected an identifier at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
+	}
+	//read next token as symbol '[' or '='
+	if(!hasMoreTokens())
+	{
+		printf("expected a symbol '[' or '=' at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance();
+		if(tokenType() != SYMBOL)
+		{
+			printf("expected a symbol '[' or '=' at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		//code block for '[expression]'
+		if(symbol() == '[')
+		{
+			fprintf(vmFile, "%s<symbol> [ </symbol>\n", indentString);
+			compileExpression();
+			//since next token has been ready by compileExpression()
+			if(tokenType() != SYMBOL || symbol() != ']')
+			{
+				printf("expected a symbol ']' at line %d\n", currentToken->line);
+				freeToken();
+				fclose(vmFile);
+				exit(1);
+			}
+			fprintf(vmFile, "%s<symbol> ] </symbol>\n", indentString);
+			//read the next token '=' for next if block
+			if(!hasMoreTokens())
+			{
+				printf("expected a symbol '=' at line %d\n", currentToken->line);
+				freeToken();
+				fclose(vmFile);
+				exit(1);
+			}
+			else
+			{
+				advance();
+			}				
+		}
+		//code block for symbol '='
+		if(symbol() == '=')
+		{
+			fprintf(vmFile, "%s<symbol> = </symbol>\n", indentString);
+		}
+		else
+		{
+			printf("expected a symbol '=' at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+	}
+	//compile expressions
+	compileExpression();
+	//since next token has been read by compileExpression
+	if(tokenType() != SYMBOL || symbol() != ';')
+	{
+		printf("expected a symbol ';' at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	fprintf(vmFile, "%s<symbol> ; </symbol>\n", indentString);
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</letStatement>\n", indentString);		
 }
+
 void compileWhile()
 {
 }
@@ -885,6 +982,34 @@ void compileIf()
 }
 void compileExpression()
 {
+	if(!hasMoreTokens())
+	{
+		printf("expression error %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance();
+		if(tokenType() != IDENTIFIER)
+		{
+			printf("expression error %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		fprintf(vmFile, "%s<expression>\n", indentString);
+		strcat(indentString, "  "); //increase the indent
+		fprintf(vmFile, "%s<term>\n", indentString);
+		strcat(indentString, "  "); //increase the indent
+		fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
+		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+		fprintf(vmFile, "%s</term>\n", indentString);
+		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+		fprintf(vmFile, "%s</expression>\n", indentString);
+	}
+	advance(); //dangerous but just the temp stuff
 }
 void compileTerm()
 {
