@@ -17,9 +17,15 @@ class Main {
 	{
 		//var MyClass no, up;
 		//var char test;
-		let square = square;
-        let direction = direction;
-        let square[hi] = direction;
+		//let square = square;
+        //let direction = direction;
+        //let square[hi] = direction;
+        do myFunc();
+        do Class.myFunc();
+        //do myFunc1();
+        //do myFunc2();
+        do Maths.Add(xyz);
+        do funcThis(xyz);
 	}
 	/*method void Main()
 	{
