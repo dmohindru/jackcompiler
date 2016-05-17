@@ -20,16 +20,22 @@ class Main {
 		//let square = square;
         //let direction = direction;
         //let square[hi] = direction;
-        do myFunc();
-        do Class.myFunc();
+        //do myFunc();
+        //do Class.myFunc();
         //do myFunc1();
         //do myFunc2();
-        do Maths.Add(xyz);
-        do funcThis(xyz);
+        //do Maths.Add(xyz);
+        //do funcThis(xyz);
+         while (key) 
+         {
+			let key = key;
+            do moveSquare();
+            while (hi)
+            {
+				let this1 = this1;
+				let hi = hi;
+            }
+         }
+        //return square;
 	}
-	/*method void Main()
-	{
-		var boolean yahoo, google;
-		var MyClass2 one, two;
-	}*/
 }

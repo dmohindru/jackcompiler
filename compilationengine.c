@@ -1106,9 +1106,110 @@ void compileLet()
 
 void compileWhile()
 {
+	//straight away write <whileStatement> tag as it has been
+	//ready by compileStatments function
+	fprintf(vmFile, "%s<whileStatement>\n", indentString);
+	strcat(indentString, "  "); //increase the indent
+	fprintf(vmFile, "%s<keyword> while </keyword>\n", indentString);
+	//read next token should be a symbol '('
+	if(!hasMoreTokens())
+	{
+		printf("expected an symbol '(' at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance(); 
+		if(tokenType() != SYMBOL || symbol() != '(')
+		{
+			printf("expected an symbol '(' at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		fprintf(vmFile, "%s<symbol> ( </symbol>\n", indentString);
+	}
+	//compile expression then
+	compileExpression();
+	//since next token has been read by compileExpression
+	//and should be a symbol ')'
+	if(tokenType() != SYMBOL || symbol() != ')')
+	{
+		printf("expected a symbol ')' at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	fprintf(vmFile, "%s<symbol> ) </symbol>\n", indentString);
+	//read next token should be a symbol '{'
+	if(!hasMoreTokens())
+	{
+		printf("expected an symbol '{' at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance(); 
+		if(tokenType() != SYMBOL || symbol() != '{')
+		{
+			printf("expected an symbol '{' at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		fprintf(vmFile, "%s<symbol> { </symbol>\n", indentString);
+	}
+	//read next token and
+	//then compile statements in a while loop
+	if(!hasMoreTokens())
+	{
+		printf("expected a statement or symbol '}' at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance(); 
+	}
+	compileStatements();
+	//since the next tokens as already ready by compileStatement()
+	//just check for symbol ;}'
+	if(tokenType() != SYMBOL || symbol() != '}')
+	{
+		printf("expected an symbol '}' at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	fprintf(vmFile, "%s<symbol> } </symbol>\n", indentString);
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</whileStatement>\n", indentString);
 }
 void compileReturn()
 {
+	//straight away write <ReturnStatement> tag as it has been
+	//ready by compileStatments function
+	fprintf(vmFile, "%s<returnStatement>\n", indentString);
+	strcat(indentString, "  "); //increase the indent
+	fprintf(vmFile, "%s<keyword> return </keyword>\n", indentString);
+	//straight way call compileExpression
+	compileExpression();
+	//since next token has been read by compileExpression
+	if(tokenType() != SYMBOL || symbol() != ';')
+	{
+		printf("expected a symbol ';' at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	fprintf(vmFile, "%s<symbol> ; </symbol>\n", indentString);
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</returnStatement>\n", indentString);
 }
 void compileIf()
 {
@@ -1117,7 +1218,7 @@ void compileExpression()
 {
 	if(!hasMoreTokens())
 	{
-		printf("expression error %d\n", currentToken->line);
+		printf("expression error at line %d\n", currentToken->line);
 		freeToken();
 		fclose(vmFile);
 		exit(1);
@@ -1125,9 +1226,13 @@ void compileExpression()
 	else
 	{
 		advance();
+		if(tokenType() == SYMBOL && symbol() == ';')
+		{
+			return;
+		}
 		if(tokenType() != IDENTIFIER)
 		{
-			printf("expression error %d\n", currentToken->line);
+			printf("expression error at line %d\n", currentToken->line);
 			freeToken();
 			fclose(vmFile);
 			exit(1);
