@@ -3,16 +3,39 @@
 //testing
 //more comments online
 class Main {
-	field Square square;
-	static int direction, out, in;
-	field boolean over, notover;
-	constructor void Main()
+	//field Square square;
+	//static int direction, out, in;
+	//field boolean over, notover;
+	//field MyClass pointer;
+	/*constructor void Main(int a, boolean b, char j, Square mySquare)
 	{
-	}
-	function void Main()
+		var MyClass a, b, c, d;
+		var int hi, low, mid;
+		var boolean yes;
+	}*/
+	function void Main(Square mySquare, boolean b, MyClass variable)
 	{
-	}
-	method void Main()
-	{
+		//var MyClass no, up;
+		//var char test;
+		//let square = square;
+        //let direction = direction;
+        //let square[hi] = direction;
+        //do myFunc();
+        //do Class.myFunc();
+        //do myFunc1();
+        //do myFunc2();
+        //do Maths.Add(xyz);
+        //do funcThis(xyz);
+         while (key) 
+         {
+			let key = key;
+            do moveSquare();
+            while (hi)
+            {
+				let this1 = this1;
+				let hi = hi;
+            }
+         }
+        //return square;
 	}
 }
