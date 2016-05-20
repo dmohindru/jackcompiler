@@ -418,6 +418,8 @@ void compileSubroutine()
 	}
 	fprintf(vmFile, "%s<symbol> ) </symbol>\n", indentString);
 	//compile subroutine body
+	fprintf(vmFile, "%s<subroutineBody>\n", indentString);
+	strcat(indentString, "  ");//increase the indent
 	//check for symbol '{' for start of subroutine body
 	if(!hasMoreTokens()) 
 	{
@@ -444,7 +446,11 @@ void compileSubroutine()
 	//compile var decleration
 	compileVarDec();
 	//compile statements
+	fprintf(vmFile, "%s<statements>\n", indentString);
+	strcat(indentString, "  ");//increase the indent
 	compileStatements();
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</statements>\n", indentString);
 	//since next token has already been read by compileVarDec() or compileStatements so just
 	//check for symbol '}'
 	if(tokenType() != SYMBOL || symbol() != '}')
@@ -455,6 +461,8 @@ void compileSubroutine()
 		exit(1);
 	}
 	fprintf(vmFile, "%s<symbol> } </symbol>\n", indentString);
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</subroutineBody>\n", indentString);
 	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 	fprintf(vmFile, "%s</subroutineDec>\n", indentString);
 	//recussively call compileSubroutine
@@ -1176,7 +1184,11 @@ void compileWhile()
 	{
 		advance(); 
 	}
+	fprintf(vmFile, "%s<statements>\n", indentString);
+	strcat(indentString, "  ");//increase the indent
 	compileStatements();
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</statements>\n", indentString);
 	//since the next tokens as already ready by compileStatement()
 	//just check for symbol ;}'
 	if(tokenType() != SYMBOL || symbol() != '}')
@@ -1283,7 +1295,11 @@ void compileIf()
 	{
 		advance(); 
 	}
+	fprintf(vmFile, "%s<statements>\n", indentString);
+	strcat(indentString, "  ");//increase the indent
 	compileStatements();
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</statements>\n", indentString);
 	//since the next tokens as already ready by compileStatement()
 	//just check for symbol }'
 	if(tokenType() != SYMBOL || symbol() != '}')
