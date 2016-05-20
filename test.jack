@@ -28,16 +28,18 @@ class Main {
         //do myFunc2();
         //do Maths.Add(xyz);
         //do funcThis(xyz);
-         while (key) 
-         {
-			let key = key;
-            do moveSquare();
-            while (hi)
-            {
-				let this1 = this1;
-				let hi = hi;
-            }
-         }
+        if (key) 
+        {
+			let exit = exit;
+			let newone = real;
+			do myFunc();
+        }
+        /*else
+        {
+			let newOne = oldOne;
+			do func2(xyz);
+			let oldOne = newOne;
+        }*/
         //return square;
 	}
-}
+}}
