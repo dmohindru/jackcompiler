@@ -1227,6 +1227,7 @@ void compileIf()
 {
 	//straight away write <ifStatement> tag as it has been
 	//ready by compileStatments function
+	struct fileToken *previousToken = 0;
 	fprintf(vmFile, "%s<ifStatement>\n", indentString);
 	strcat(indentString, "  "); //increase the indent
 	fprintf(vmFile, "%s<keyword> if </keyword>\n", indentString);
@@ -1310,8 +1311,9 @@ void compileIf()
 		exit(1);
 	}
 	fprintf(vmFile, "%s<symbol> } </symbol>\n", indentString);
+	
 	//look for else block
-	/*
+	previousToken = currentToken;
 	if(!hasMoreTokens())
 	{
 		printf("expected an symbol '}' or a statement at line %d\n", currentToken->line);
@@ -1326,6 +1328,12 @@ void compileIf()
 		//but we have also drive past on token also here try to fix it here
 		if(tokenType() != KEYWORD || keyWord() != ELSE) 
 		{
+			printf("Else not found\n");
+			printf("currentToken->str: %s, previousToken->str: %s\n", currentToken->stringToken, previousToken->stringToken);
+			//currentToken = previousToken;
+			//current = previousToken;
+			indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+			fprintf(vmFile, "%s</ifStatement>\n", indentString);
 			return;												
 		}
 	}
@@ -1363,7 +1371,11 @@ void compileIf()
 	{
 		advance(); 
 	}
+	fprintf(vmFile, "%s<statements>\n", indentString);
+	strcat(indentString, "  ");//increase the indent
 	compileStatements();
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</statements>\n", indentString);
 	//since the next tokens as already ready by compileStatement()
 	//just check for symbol }'
 	if(tokenType() != SYMBOL || symbol() != '}')
@@ -1373,7 +1385,7 @@ void compileIf()
 		fclose(vmFile);
 		exit(1);
 	}
-	fprintf(vmFile, "%s<symbol> } </symbol>\n", indentString); */	
+	fprintf(vmFile, "%s<symbol> } </symbol>\n", indentString);
 	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 	fprintf(vmFile, "%s</ifStatement>\n", indentString);
 }

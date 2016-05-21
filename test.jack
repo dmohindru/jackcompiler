@@ -31,9 +31,16 @@ class Main {
         if (key) 
         {
 			let exit = exit;
-			let newone = real;
-			do myFunc();
+			//let newone = real;
+			//do myFunc();
         }
+        let key = key;
+        /*if (key) 
+        {
+			let exit = exit;
+			//let newone = real;
+			//do myFunc();
+        }*/
         /*else
         {
 			let newOne = oldOne;
@@ -42,4 +49,4 @@ class Main {
         }*/
         //return square;
 	}
-}}
+}
