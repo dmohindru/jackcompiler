@@ -30,23 +30,23 @@ class Main {
         //do funcThis(xyz);
         if (key) 
         {
-			let exit = exit;
+			//let exit = exit;
 			//let newone = real;
 			//do myFunc();
         }
-        let key = key;
-        /*if (key) 
+        //let key = key;
+        if (key) 
         {
-			let exit = exit;
+			//let exit = exit;
 			//let newone = real;
 			//do myFunc();
-        }*/
-        /*else
+        }
+        else
         {
 			let newOne = oldOne;
 			do func2(xyz);
 			let oldOne = newOne;
-        }*/
+        }
         //return square;
 	}
 }

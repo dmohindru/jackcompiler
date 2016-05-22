@@ -1227,7 +1227,7 @@ void compileIf()
 {
 	//straight away write <ifStatement> tag as it has been
 	//ready by compileStatments function
-	struct fileToken *previousToken = 0;
+	//struct fileToken *previousToken = 0;
 	fprintf(vmFile, "%s<ifStatement>\n", indentString);
 	strcat(indentString, "  "); //increase the indent
 	fprintf(vmFile, "%s<keyword> if </keyword>\n", indentString);
@@ -1328,10 +1328,11 @@ void compileIf()
 		//but we have also drive past on token also here try to fix it here
 		if(tokenType() != KEYWORD || keyWord() != ELSE) 
 		{
-			printf("Else not found\n");
-			printf("currentToken->str: %s, previousToken->str: %s\n", currentToken->stringToken, previousToken->stringToken);
+			//printf("Else not found\n");
+			//printf("currentToken->str: %s, previousToken->str: %s\n", currentToken->stringToken, previousToken->stringToken);
 			//currentToken = previousToken;
-			//current = previousToken;
+			//current->next = current;
+			current = currentToken;
 			indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 			fprintf(vmFile, "%s</ifStatement>\n", indentString);
 			return;												
