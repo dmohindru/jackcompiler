@@ -1313,7 +1313,7 @@ void compileIf()
 	fprintf(vmFile, "%s<symbol> } </symbol>\n", indentString);
 	
 	//look for else block
-	previousToken = currentToken;
+	//previousToken = currentToken;
 	if(!hasMoreTokens())
 	{
 		printf("expected an symbol '}' or a statement at line %d\n", currentToken->line);
@@ -1402,7 +1402,10 @@ void compileExpression()
 	else
 	{
 		advance();
-		if(tokenType() == SYMBOL && symbol() == ';')
+		fprintf(vmFile, "%s<expression>\n", indentString);
+		strcat(indentString, "  "); //increase the indent
+		fprintf(vmFile, "%s<term>\n", indentString);
+		/*if(tokenType() == SYMBOL && symbol() == ';')
 		{
 			return;
 		}
@@ -1421,9 +1424,78 @@ void compileExpression()
 		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 		fprintf(vmFile, "%s</term>\n", indentString);
 		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
-		fprintf(vmFile, "%s</expression>\n", indentString);
+		fprintf(vmFile, "%s</expression>\n", indentString);*/
 	}
-	advance(); //dangerous but just the temp stuff
+	compileTerm();
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</term>\n", indentString);
+	//assuming that advance has already been called by compileTerm();
+	//look for the occurance of (op term)*
+	while(1)
+	{
+		if(tokenType()!= SYMBOL)
+		{
+			//next token is not of type 'op' so expression has ended and return;
+			//this is the only place from where we will exit the function
+			//so put ending tags here
+			indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+			fprintf(vmFile, "%s</expression>\n", indentString);
+			return;
+		}
+		switch(symbol())
+		{
+			case '+':
+				fprintf(vmFile, "%s<symbol> + </symbol>\n", indentString);
+				break;
+			case '-':
+				fprintf(vmFile, "%s<symbol> - </symbol>\n", indentString);
+				break;
+			case '*':
+				fprintf(vmFile, "%s<symbol> * </symbol>\n", indentString);
+				break;
+			case '/':
+				fprintf(vmFile, "%s<symbol> / </symbol>\n", indentString);
+				break;
+			case '&'://use &amp;
+				fprintf(vmFile, "%s<symbol> &amp; </symbol>\n", indentString);
+				break;
+			case '|':
+				fprintf(vmFile, "%s<symbol> | </symbol>\n", indentString);
+				break;
+			case '<': //use &lt;
+				fprintf(vmFile, "%s<symbol> &lt; </symbol>\n", indentString);
+				break;
+			case '>':
+				fprintf(vmFile, "%s<symbol> &gt; </symbol>\n", indentString);
+				break;//use &gt;
+			case '=':
+				fprintf(vmFile, "%s<symbol> = </symbol>\n", indentString);
+				break;	
+			default:
+				printf("unknown 'op' type at line %d\n", currentToken->line);
+				freeToken();
+				fclose(vmFile);
+				exit(1);
+		}
+		if(!hasMoreTokens())
+		{
+			printf("expression error at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		else
+		{
+			advance();
+			strcat(indentString, "  "); //increase the indent
+			fprintf(vmFile, "%s<term>\n", indentString);
+			compileTerm();
+			indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+			fprintf(vmFile, "%s</term>\n", indentString);	
+		}
+		
+	}
+	//advance(); //dangerous but just the temp stuff
 }
 void compileTerm()
 {
