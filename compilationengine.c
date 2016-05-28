@@ -1405,26 +1405,6 @@ void compileExpression()
 		fprintf(vmFile, "%s<expression>\n", indentString);
 		strcat(indentString, "  "); //increase the indent
 		fprintf(vmFile, "%s<term>\n", indentString);
-		/*if(tokenType() == SYMBOL && symbol() == ';')
-		{
-			return;
-		}
-		if(tokenType() != IDENTIFIER)
-		{
-			printf("expression error at line %d\n", currentToken->line);
-			freeToken();
-			fclose(vmFile);
-			exit(1);
-		}
-		fprintf(vmFile, "%s<expression>\n", indentString);
-		strcat(indentString, "  "); //increase the indent
-		fprintf(vmFile, "%s<term>\n", indentString);
-		strcat(indentString, "  "); //increase the indent
-		fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
-		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
-		fprintf(vmFile, "%s</term>\n", indentString);
-		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
-		fprintf(vmFile, "%s</expression>\n", indentString);*/
 	}
 	compileTerm();
 	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
@@ -1472,10 +1452,13 @@ void compileExpression()
 				fprintf(vmFile, "%s<symbol> = </symbol>\n", indentString);
 				break;	
 			default:
-				printf("unknown 'op' type at line %d\n", currentToken->line);
-				freeToken();
-				fclose(vmFile);
-				exit(1);
+				indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+				fprintf(vmFile, "%s</expression>\n", indentString);
+				return;
+				//printf("unknown 'op' type at line %d\n", currentToken->line);
+				//freeToken();
+				//fclose(vmFile);
+				//exit(1);
 		}
 		if(!hasMoreTokens())
 		{
@@ -1499,6 +1482,24 @@ void compileExpression()
 }
 void compileTerm()
 {
+	if(!hasMoreTokens())
+	{
+		printf("expected term at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance();
+		strcat(indentString, "  "); //increase the indent
+	}
+	
+	if(tokenType() == INT_CONST)
+	{
+		fprintf(vmFile, "%s<integerConstant> %d </integerConstant>\n", indentString, intVal());
+	}
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 }
 void compileExpressionList()
 {
