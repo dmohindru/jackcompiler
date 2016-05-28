@@ -1313,7 +1313,7 @@ void compileIf()
 	fprintf(vmFile, "%s<symbol> } </symbol>\n", indentString);
 	
 	//look for else block
-	previousToken = currentToken;
+	//previousToken = currentToken;
 	if(!hasMoreTokens())
 	{
 		printf("expected an symbol '}' or a statement at line %d\n", currentToken->line);
