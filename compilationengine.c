@@ -1402,31 +1402,104 @@ void compileExpression()
 	else
 	{
 		advance();
-		if(tokenType() == SYMBOL && symbol() == ';')
+		fprintf(vmFile, "%s<expression>\n", indentString);
+		strcat(indentString, "  "); //increase the indent
+		fprintf(vmFile, "%s<term>\n", indentString);
+	}
+	compileTerm();
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+	fprintf(vmFile, "%s</term>\n", indentString);
+	//assuming that advance has already been called by compileTerm();
+	//look for the occurance of (op term)*
+	while(1)
+	{
+		if(tokenType()!= SYMBOL)
 		{
+			//next token is not of type 'op' so expression has ended and return;
+			//this is the only place from where we will exit the function
+			//so put ending tags here
+			indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+			fprintf(vmFile, "%s</expression>\n", indentString);
 			return;
 		}
-		if(tokenType() != IDENTIFIER)
+		switch(symbol())
+		{
+			case '+':
+				fprintf(vmFile, "%s<symbol> + </symbol>\n", indentString);
+				break;
+			case '-':
+				fprintf(vmFile, "%s<symbol> - </symbol>\n", indentString);
+				break;
+			case '*':
+				fprintf(vmFile, "%s<symbol> * </symbol>\n", indentString);
+				break;
+			case '/':
+				fprintf(vmFile, "%s<symbol> / </symbol>\n", indentString);
+				break;
+			case '&'://use &amp;
+				fprintf(vmFile, "%s<symbol> &amp; </symbol>\n", indentString);
+				break;
+			case '|':
+				fprintf(vmFile, "%s<symbol> | </symbol>\n", indentString);
+				break;
+			case '<': //use &lt;
+				fprintf(vmFile, "%s<symbol> &lt; </symbol>\n", indentString);
+				break;
+			case '>':
+				fprintf(vmFile, "%s<symbol> &gt; </symbol>\n", indentString);
+				break;//use &gt;
+			case '=':
+				fprintf(vmFile, "%s<symbol> = </symbol>\n", indentString);
+				break;	
+			default:
+				indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+				fprintf(vmFile, "%s</expression>\n", indentString);
+				return;
+				//printf("unknown 'op' type at line %d\n", currentToken->line);
+				//freeToken();
+				//fclose(vmFile);
+				//exit(1);
+		}
+		if(!hasMoreTokens())
 		{
 			printf("expression error at line %d\n", currentToken->line);
 			freeToken();
 			fclose(vmFile);
 			exit(1);
 		}
-		fprintf(vmFile, "%s<expression>\n", indentString);
-		strcat(indentString, "  "); //increase the indent
-		fprintf(vmFile, "%s<term>\n", indentString);
-		strcat(indentString, "  "); //increase the indent
-		fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
-		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
-		fprintf(vmFile, "%s</term>\n", indentString);
-		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
-		fprintf(vmFile, "%s</expression>\n", indentString);
+		else
+		{
+			advance();
+			strcat(indentString, "  "); //increase the indent
+			fprintf(vmFile, "%s<term>\n", indentString);
+			compileTerm();
+			indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+			fprintf(vmFile, "%s</term>\n", indentString);	
+		}
+		
 	}
-	advance(); //dangerous but just the temp stuff
+	//advance(); //dangerous but just the temp stuff
 }
 void compileTerm()
 {
+	if(!hasMoreTokens())
+	{
+		printf("expected term at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance();
+		strcat(indentString, "  "); //increase the indent
+	}
+	
+	if(tokenType() == INT_CONST)
+	{
+		fprintf(vmFile, "%s<integerConstant> %d </integerConstant>\n", indentString, intVal());
+	}
+	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 }
 void compileExpressionList()
 {

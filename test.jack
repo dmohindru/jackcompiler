@@ -5,48 +5,8 @@
 //comments for my home pc
 //comments from my online account/editor
 class Main {
-	//field Square square;
-	//static int direction, out, in;
-	//field boolean over, notover;
-	//field MyClass pointer;
-	/*constructor void Main(int a, boolean b, char j, Square mySquare)
-	{
-		var MyClass a, b, c, d;
-		var int hi, low, mid;
-		var boolean yes;
-	}*/
 	function void Main(Square mySquare, boolean b, MyClass variable)
 	{
-		//var MyClass no, up;
-		//var char test;
-		//let square = square;
-        //let direction = direction;
-        //let square[hi] = direction;
-        //do myFunc();
-        //do Class.myFunc();
-        //do myFunc1();
-        //do myFunc2();
-        //do Maths.Add(xyz);
-        //do funcThis(xyz);
-        if (key) 
-        {
-			//let exit = exit;
-			//let newone = real;
-			//do myFunc();
-        }
-        //let key = key;
-        if (key) 
-        {
-			//let exit = exit;
-			//let newone = real;
-			//do myFunc();
-        }
-        else
-        {
-			let newOne = oldOne;
-			do func2(xyz);
-			let oldOne = newOne;
-        }
-        //return square;
+		let square = 1000;
 	}
 }
