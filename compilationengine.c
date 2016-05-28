@@ -1407,8 +1407,8 @@ void compileExpression()
 		fprintf(vmFile, "%s<term>\n", indentString);
 	}
 	compileTerm();
-	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 	fprintf(vmFile, "%s</term>\n", indentString);
+	//indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 	//assuming that advance has already been called by compileTerm();
 	//look for the occurance of (op term)*
 	while(1)
@@ -1470,10 +1470,10 @@ void compileExpression()
 		else
 		{
 			advance();
-			strcat(indentString, "  "); //increase the indent
+			//strcat(indentString, "  "); //increase the indent
 			fprintf(vmFile, "%s<term>\n", indentString);
 			compileTerm();
-			indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+			//indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 			fprintf(vmFile, "%s</term>\n", indentString);	
 		}
 		
@@ -1482,23 +1482,12 @@ void compileExpression()
 }
 void compileTerm()
 {
-	if(!hasMoreTokens())
-	{
-		printf("expected term at line %d\n", currentToken->line);
-		freeToken();
-		fclose(vmFile);
-		exit(1);
-	}
-	else
-	{
-		advance();
-		strcat(indentString, "  "); //increase the indent
-	}
-	
+	strcat(indentString, "  "); //increase the indent
 	if(tokenType() == INT_CONST)
 	{
 		fprintf(vmFile, "%s<integerConstant> %d </integerConstant>\n", indentString, intVal());
 	}
+	advance();//temp stuff
 	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 }
 void compileExpressionList()

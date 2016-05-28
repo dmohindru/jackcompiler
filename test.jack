@@ -7,6 +7,6 @@
 class Main {
 	function void Main(Square mySquare, boolean b, MyClass variable)
 	{
-		let square = 1000;
+		let square = 256;
 	}
 }
