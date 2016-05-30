@@ -1483,10 +1483,91 @@ void compileExpression()
 void compileTerm()
 {
 	strcat(indentString, "  "); //increase the indent
-	if(tokenType() == INT_CONST)
+	if(tokenType() == INT_CONST) //int constant
 	{
 		fprintf(vmFile, "%s<integerConstant> %d </integerConstant>\n", indentString, intVal());
 	}
+	else if(tokenType() == STRING_CONST) //string constant
+	{
+		fprintf(vmFile, "%s<stringConstant> %s </stringConstant>\n", indentString, stringVal());
+	}
+	else if(tokenType() == KEYWORD) //keyword constant
+	{
+		switch(keyWord())
+		{
+			case TRUE:
+				fprintf(vmFile, "%s<keyword> true </keyword>\n", indentString);
+				break;
+			case FALSE:
+				fprintf(vmFile, "%s<keyword> false </keyword>\n", indentString);
+				break;
+			case NULL_KEYWORD:
+				fprintf(vmFile, "%s<keyword> null </keyword>\n", indentString);
+				break;
+			case THIS:
+				fprintf(vmFile, "%s<keyword> this </keyword>\n", indentString);
+				break;
+			default:
+				printf("unknown keyword constant for term decleration at line %d\n", currentToken->line);
+				freeToken();
+				fclose(vmFile);
+				exit(1);
+		}
+	}
+	else if(tokenType() == IDENTIFIER) //it may be a varName | varName'['expression']' | subroutineCall
+	{
+		fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
+		if(!hasMoreTokens())
+		{
+			printf("term identifier error at line %d\n", currentToken->line);
+			freeToken();
+			fclose(vmFile);
+			exit(1);
+		}
+		else
+		{
+			advance();
+		}
+		if(tokenType() == SYMBOL)
+		{
+			if(symbol() == '[') //process varName '['expression']'
+			{
+				fprintf(vmFile, "%s<symbol> [ </symbol>\n", indentString);
+				if(!hasMoreTokens())
+				{
+					printf("expected an expression at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				else
+				{
+					advance();
+				}
+				compileExpression();
+				//since the next token must have been read by compileExpression() just check for ']' character
+				if(tokenType() != SYMBOL || symbol() != ']')
+				{
+					printf("Current token: %s\n", currentToken->stringToken);
+					printf("expected a symbol ']' at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				fprintf(vmFile, "%s<symbol> ] </symbol>\n", indentString);
+			}
+			else if(symbol() == '(') //process subroutineName'(' expressionList ')'
+			{
+			}
+			else if(symbol() == '.') //process className|varName.subroutineName '(' expressionList ')'
+			{
+			}
+			else //invalid symbol report it as error
+			{
+			}
+		}
+	}
+	
 	advance();//temp stuff
 	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 }
