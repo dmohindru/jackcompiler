@@ -982,6 +982,7 @@ void compileDo()
 	//next token should be ')'
 	if(tokenType() != SYMBOL || symbol() != ')')
 	{
+		//printf("Token: %s\n", currentToken->stringToken);
 		printf("expected a symbol ')' at line %d\n", currentToken->line);
 		freeToken();
 		fclose(vmFile);
@@ -1102,6 +1103,7 @@ void compileLet()
 	//since next token has been read by compileExpression
 	if(tokenType() != SYMBOL || symbol() != ';')
 	{
+		printf("Token: %s\n", currentToken->stringToken);
 		printf("expected a symbol ';' at line %d\n", currentToken->line);
 		freeToken();
 		fclose(vmFile);
@@ -1402,6 +1404,12 @@ void compileExpression()
 	else
 	{
 		advance();
+		//this logic to accomadate expressionList
+		//and term '(' expression ')'
+		if(tokenType() == SYMBOL && symbol() == ')')
+		{
+			return;
+		}
 		fprintf(vmFile, "%s<expression>\n", indentString);
 		strcat(indentString, "  "); //increase the indent
 		fprintf(vmFile, "%s<term>\n", indentString);
@@ -1519,7 +1527,7 @@ void compileTerm()
 		fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
 		if(!hasMoreTokens())
 		{
-			printf("term identifier error at line %d\n", currentToken->line);
+			printf("expected ';' after term identifier at line %d\n", currentToken->line);
 			freeToken();
 			fclose(vmFile);
 			exit(1);
@@ -1533,17 +1541,6 @@ void compileTerm()
 			if(symbol() == '[') //process varName '['expression']'
 			{
 				fprintf(vmFile, "%s<symbol> [ </symbol>\n", indentString);
-				if(!hasMoreTokens())
-				{
-					printf("expected an expression at line %d\n", currentToken->line);
-					freeToken();
-					fclose(vmFile);
-					exit(1);
-				}
-				else
-				{
-					advance();
-				}
 				compileExpression();
 				//since the next token must have been read by compileExpression() just check for ']' character
 				if(tokenType() != SYMBOL || symbol() != ']')
@@ -1558,13 +1555,157 @@ void compileTerm()
 			}
 			else if(symbol() == '(') //process subroutineName'(' expressionList ')'
 			{
+				fprintf(vmFile, "%s<symbol> ( </symbol>\n", indentString);
+				compileExpressionList();
+				//since the next token must have been read by compileExpressionList() just check for ')' character
+				if(tokenType() != SYMBOL || symbol() != ')')
+				{
+					printf("Current token: %s\n", currentToken->stringToken);
+					printf("expected a symbol ')' at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				fprintf(vmFile, "%s<symbol> ) </symbol>\n", indentString);
 			}
 			else if(symbol() == '.') //process className|varName.subroutineName '(' expressionList ')'
 			{
+				fprintf(vmFile, "%s<symbol> . </symbol>\n", indentString);
+				if(!hasMoreTokens()) //read subRoutineName
+				{
+					printf("expected identifier for subroutine name at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				else
+				{
+					advance();
+				}
+				if(tokenType() != IDENTIFIER)
+				{
+					printf("expected identifier for subroutine name at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
+				//read symbol '('
+				if(!hasMoreTokens())
+				{
+					printf("expected a symbol '(' at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				else
+				{
+					advance();
+				}
+				if(tokenType() != SYMBOL || symbol() != '(')
+				{
+					printf("expected a symbol '(' at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				fprintf(vmFile, "%s<symbol> ( </symbol>\n", indentString);
+				compileExpressionList();
+				//since the next token must have been read by compileExpressionList() just check for ')' character
+				if(tokenType() != SYMBOL || symbol() != ')')
+				{
+					printf("Current token: %s\n", currentToken->stringToken);
+					printf("expected a symbol ')' at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				fprintf(vmFile, "%s<symbol> ) </symbol>\n", indentString);
 			}
-			else //invalid symbol report it as error
+			else //it may be a operator or ';' symbol just return
 			{
+				indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+				return;
 			}
+		}
+	}
+	else if(tokenType() == SYMBOL)// && symbol() == '(') //'(' expression ')'
+	{
+		switch(symbol())
+		{
+			case '(':
+				fprintf(vmFile, "%s<symbol> ( </symbol>\n", indentString);
+				compileExpression();
+				//since the next token must have been read by compileExpression() just check for ')' character
+				if(tokenType() != SYMBOL || symbol() != ')')
+				{
+					printf("Current token: %s\n", currentToken->stringToken);
+					printf("expected a symbol ')' at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				fprintf(vmFile, "%s<symbol> ) </symbol>\n", indentString);
+				break;
+			case '~':
+				fprintf(vmFile, "%s<symbol> ~ </symbol>\n", indentString);
+				/*if(!hasMoreTokens()) //advance for compileTerm
+				{
+					printf("expected a term at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				else
+				{
+					advance();
+				}*/
+				compileTerm();
+				/*if(!hasMoreTokens()) //advance for next function to process
+				{
+					printf("expected a term at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				else
+				{
+					advance();
+				}*/
+				break;
+			case '-':
+				fprintf(vmFile, "%s<symbol> - </symbol>\n", indentString);
+				/*if(!hasMoreTokens()) //advance for compileTerm
+				{
+					printf("expected a term at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				else
+				{
+					advance();
+					fprintf(vmFile, "%s<term>\n", indentString);
+				}*/
+				compileTerm();
+				//fprintf(vmFile, "%s</term>\n", indentString);
+				/*if(!hasMoreTokens()) //advance for next function to process
+				{
+					printf("expected a ; at line %d\n", currentToken->line);
+					freeToken();
+					fclose(vmFile);
+					exit(1);
+				}
+				else
+				{
+					advance();
+				}*/
+				break;
+			default:
+				printf("unknown term format at line %d\n", currentToken->line);
+				freeToken();
+				fclose(vmFile);
+				exit(1);
 		}
 	}
 	
@@ -1573,41 +1714,24 @@ void compileTerm()
 }
 void compileExpressionList()
 {
-	if(!hasMoreTokens())
+	fprintf(vmFile, "%s<expressionList>\n", indentString);
+	strcat(indentString, "  "); //increase the indent
+	/*if(tokenType() == SYMBOL && symbol() == ')')
 	{
-		printf("expression error %d\n", currentToken->line);
-		freeToken();
-		fclose(vmFile);
-		exit(1);
-	}
-	else
+		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+		fprintf(vmFile, "%s</expressionList>\n", indentString);
+		return;
+	}*/
+	compileExpression();
+	while(1)
 	{
-		fprintf(vmFile, "%s<expressionList>\n", indentString);
-		strcat(indentString, "  "); //increase the indent
-		advance();
-		if(tokenType() != IDENTIFIER)
+		if(tokenType() != SYMBOL || symbol() != ',')
 		{
 			indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 			fprintf(vmFile, "%s</expressionList>\n", indentString);
 			return;
-			//printf("expression error %d\n", currentToken->line);
-			//freeToken();
-			//fclose(vmFile);
-			//exit(1);
 		}
-		//compileExpression();
-		fprintf(vmFile, "%s<expression>\n", indentString);
-		strcat(indentString, "  "); //increase the indent
-		fprintf(vmFile, "%s<term>\n", indentString);
-		strcat(indentString, "  "); //increase the indent
-		fprintf(vmFile, "%s<identifier> %s </identifier>\n", indentString, identifier());
-		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
-		fprintf(vmFile, "%s</term>\n", indentString);
-		indentString[strlen(indentString)-2] = '\0'; //decrease the indent
-		fprintf(vmFile, "%s</expression>\n", indentString);
-		
+		fprintf(vmFile, "%s<symbol> , </symbol>\n", indentString);
+		compileExpression();
 	}
-	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
-	fprintf(vmFile, "%s</expressionList>\n", indentString);
-	advance(); //dangerous but just the temp stuff
 }

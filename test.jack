@@ -7,6 +7,9 @@
 class Main {
 	function void Main(Square mySquare, boolean b, MyClass variable)
 	{
-		let square = hello[100];
+		//do myFunc(this, 1);
+		//let square = hello[myFunc(this, 0)];
+		//let square = myClass.myFunc(anotherFunc(true, 1));
+		let square = -true;
 	}
 }
