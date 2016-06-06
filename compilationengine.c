@@ -1404,11 +1404,23 @@ void compileExpression()
 	else
 	{
 		advance();
-		//this logic to accomadate expressionList
+		//this logic to accomadate expressionList & return statement
 		//and term '(' expression ')'
-		if(tokenType() == SYMBOL && symbol() == ')')
+		/*if(tokenType() == SYMBOL && symbol() == ')')
 		{
 			return;
+		}*/
+		if(tokenType() == SYMBOL)
+		{
+			switch(symbol())
+			{
+				case ')':
+					return;
+				case ';':
+					return;
+				default:
+					break;
+			}
 		}
 		fprintf(vmFile, "%s<expression>\n", indentString);
 		strcat(indentString, "  "); //increase the indent
@@ -1649,7 +1661,7 @@ void compileTerm()
 				break;
 			case '~':
 				fprintf(vmFile, "%s<symbol> ~ </symbol>\n", indentString);
-				/*if(!hasMoreTokens()) //advance for compileTerm
+				if(!hasMoreTokens()) //advance for compileTerm
 				{
 					printf("expected a term at line %d\n", currentToken->line);
 					freeToken();
@@ -1659,23 +1671,16 @@ void compileTerm()
 				else
 				{
 					advance();
-				}*/
+				}
+				strcat(indentString, "  "); //increase the indent
+				fprintf(vmFile, "%s<term>\n", indentString);
 				compileTerm();
-				/*if(!hasMoreTokens()) //advance for next function to process
-				{
-					printf("expected a term at line %d\n", currentToken->line);
-					freeToken();
-					fclose(vmFile);
-					exit(1);
-				}
-				else
-				{
-					advance();
-				}*/
-				break;
+				fprintf(vmFile, "%s</term>\n", indentString);
+				indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+				return;
 			case '-':
 				fprintf(vmFile, "%s<symbol> - </symbol>\n", indentString);
-				/*if(!hasMoreTokens()) //advance for compileTerm
+				if(!hasMoreTokens()) //advance for compileTerm
 				{
 					printf("expected a term at line %d\n", currentToken->line);
 					freeToken();
@@ -1685,31 +1690,33 @@ void compileTerm()
 				else
 				{
 					advance();
-					fprintf(vmFile, "%s<term>\n", indentString);
-				}*/
-				compileTerm();
-				//fprintf(vmFile, "%s</term>\n", indentString);
-				/*if(!hasMoreTokens()) //advance for next function to process
-				{
-					printf("expected a ; at line %d\n", currentToken->line);
-					freeToken();
-					fclose(vmFile);
-					exit(1);
 				}
-				else
-				{
-					advance();
-				}*/
-				break;
+				strcat(indentString, "  "); //increase the indent
+				fprintf(vmFile, "%s<term>\n", indentString);
+				compileTerm();
+				fprintf(vmFile, "%s</term>\n", indentString);
+				indentString[strlen(indentString)-2] = '\0'; //decrease the indent
+				return;
 			default:
 				printf("unknown term format at line %d\n", currentToken->line);
+				printf("Symbol: %c\n", symbol());
 				freeToken();
 				fclose(vmFile);
 				exit(1);
 		}
 	}
-	
-	advance();//temp stuff
+	if(!hasMoreTokens()) //advance for compileTerm
+	{
+		printf("term advance error at line %d\n", currentToken->line);
+		freeToken();
+		fclose(vmFile);
+		exit(1);
+	}
+	else
+	{
+		advance();
+	}
+	//advance();//temp stuff
 	indentString[strlen(indentString)-2] = '\0'; //decrease the indent
 }
 void compileExpressionList()
