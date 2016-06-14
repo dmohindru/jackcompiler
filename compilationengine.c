@@ -1,4 +1,4 @@
-/* compilationengine.h
+/* compilationengine.c
  * This file implements CompilationEngine Module of Jack Compiler
  * for Hack computer
  * Author: Dhruv Mohindru
