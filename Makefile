@@ -1,6 +1,6 @@
 # Make file of jackcompiler
 # for Hack computer
-SOURCES=jackcompiler.o jacktokenizer.o compilationengine.o
+SOURCES=jackcompiler.o jacktokenizer.o compilationengine.o symboltable.o vmwriter.o
 CC=gcc
 
 all: $(SOURCES) link
